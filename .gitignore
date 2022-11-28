@@ -24,3 +24,7 @@ noaatides-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+# Emacs files
+#*#
+*~
