@@ -25,6 +25,9 @@ noaatides-*.tar
 # Temporary files, for example, from tests.
 /tmp/
 
+# Ignore escript binary
+noaatides
+
 # Emacs files
 #*#
 *~

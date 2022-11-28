@@ -1,5 +1,5 @@
 defmodule NOAATides.CLI do
-  require logger
+  require Logger
 
   @moduledoc """
   Documentation for `NOAATides`.
@@ -7,18 +7,25 @@ defmodule NOAATides.CLI do
 
   def main(argv), do: argv |> parse_argv |> process
 
-  def process(%Optimus.PArseResult{args: _args, options: _options, flags: _flags} = cli_args) do
+  def process(%Optimus.ParseResult{args: _args, options: _options, flags: flags} = cli_args) do
     # Setup logger according to debug and verbose
     case flags[:debug] do
       true -> Logger.configure(level: :debug)
       _ -> case flags[:verbosity] do
-             0 -> :ok,
-             _ -> Logger.configure(level: :info)
+             0 -> :ok
+             1 -> Logger.configure(level: :warning)
+             2 -> Logger.configure(level: :notice)
+             3 -> Logger.configure(level: :info)
+             _ -> Logger.configure(level: :debug)
            end
     end
 
     # Setup hackney so everything later will log
     :hackney_trace.enable(NOAATides.Utils.hackney_level(flags[:debug], flags[:verbosity]), :io)
+
+    Logger.info("Configuration: #{inspect cli_args}")
+
+    for pid <- Process.list, do: Logger.debug("process: #{inspect {pid, Process.info(pid, :registered_name)}}")
   end
 
   def parse_argv(argv) do
@@ -45,7 +52,35 @@ defmodule NOAATides.CLI do
           multiple: true
         ]
       ],
-      options: []
+      options: [
+        date_from: [
+          value_name: "DATE_FROM",
+          short: "-f",
+          long: "--from",
+          help: "Download tides from this date",
+          parser: fn(s) ->
+            case Date.from_iso8601(s) do
+              {:error, _} -> {:error, "invalid 'from' date"}
+              {:ok, _} = ok -> ok
+            end
+          end,
+          required: true
+        ],
+        date_to: [
+          value_name: "DATE_to",
+          short: "-t",
+          long: "--to",
+          help: "Download tides to this date",
+          parser: fn(s) ->
+            case Date.from_iso8601(s) do
+              {:error, _} -> {:error, "invalid 'to' date"}
+              {:ok, _} = ok -> ok
+            end
+          end,
+          required: true
+        ]
+      ]
     )
+    |> Optimus.parse!(argv)
   end
 end
