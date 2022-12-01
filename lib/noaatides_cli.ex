@@ -2,12 +2,11 @@ defmodule NOAATides.CLI do
   require Logger
 
   @moduledoc """
-  Documentation for `NOAATides`.
   """
 
   def main(argv), do: argv |> parse_argv |> process
 
-  def process(%Optimus.ParseResult{args: _args, options: _options, flags: flags} = cli_args) do
+  def process(%Optimus.ParseResult{args: _args, options: options, flags: flags} = cli_args) do
     # Setup logger according to debug and verbose
     case flags[:debug] do
       true -> Logger.configure(level: :debug)
@@ -26,6 +25,9 @@ defmodule NOAATides.CLI do
     Logger.info("Configuration: #{inspect cli_args}")
 
     for pid <- Process.list, do: Logger.debug("process: #{inspect {pid, Process.info(pid, :registered_name)}}")
+
+    raw = NOOATides.Client.retrying_query(options[:from_date], options[:to_date])
+    IO.puts("#{inspect raw}")
   end
 
   def parse_argv(argv) do
@@ -53,8 +55,8 @@ defmodule NOAATides.CLI do
         ]
       ],
       options: [
-        date_from: [
-          value_name: "DATE_FROM",
+        from_date: [
+          value_name: "FROM_DATE",
           short: "-f",
           long: "--from",
           help: "Download tides from this date",
@@ -66,8 +68,8 @@ defmodule NOAATides.CLI do
           end,
           required: true
         ],
-        date_to: [
-          value_name: "DATE_to",
+        to_date: [
+          value_name: "TO_DATE",
           short: "-t",
           long: "--to",
           help: "Download tides to this date",
