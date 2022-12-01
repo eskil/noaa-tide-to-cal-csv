@@ -21,7 +21,7 @@ defmodule NOOATides.Client do
     |> URI.append_query(URI.encode_query(datum: "MLLW"))
     |> URI.append_query(URI.encode_query(interval: "hilo"))
     |> URI.append_query(URI.encode_query(clock: "24hour"))
-    |> URI.append_query(URI.encode_query(type: "txt")) # or xml?
+    |> URI.append_query(URI.encode_query(type: "xml")) # or txt and parse?
     |> URI.append_query(URI.encode_query(annual: "false"))
     |> URI.to_string
   end

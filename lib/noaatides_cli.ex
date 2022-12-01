@@ -1,5 +1,6 @@
 defmodule NOAATides.CLI do
   require Logger
+  import SweetXml
 
   @moduledoc """
   """
@@ -26,8 +27,12 @@ defmodule NOAATides.CLI do
 
     for pid <- Process.list, do: Logger.debug("process: #{inspect {pid, Process.info(pid, :registered_name)}}")
 
-    raw = NOOATides.Client.retrying_query(options[:from_date], options[:to_date])
-    IO.puts("#{inspect raw}")
+    items = NOOATides.Client.retrying_query(options[:from_date], options[:to_date])
+    |> xpath(~x"//data/item"l, date: ~x"./date", time: ~x"./time", tide: ~x"./pred")
+
+    for item <- items do
+      IO.puts("#{inspect item, pretty: true}")
+    end
   end
 
   def parse_argv(argv) do
