@@ -27,11 +27,35 @@ defmodule NOAATides.CLI do
 
     for pid <- Process.list, do: Logger.debug("process: #{inspect {pid, Process.info(pid, :registered_name)}}")
 
-    items = NOOATides.Client.retrying_query(options[:from_date], options[:to_date])
-    |> xpath(~x"//data/item"l, date: ~x"./date", time: ~x"./time", tide: ~x"./pred")
+    doc = NOOATides.Client.retrying_query(options[:from_date], options[:to_date])
 
+    location =
+      Enum.at(doc
+      |> SweetXml.xpath(~x"."l,
+        stationname: ~x"./stationname/text()",
+        state: ~x"./state/text()",
+        stationid: ~x"./stationid/text()"
+        ), 0)
+      IO.puts("#{inspect location, pretty: true}")
+
+    items =
+      doc
+      |> SweetXml.xpath(
+        ~x"//item"l,
+        date: ~x"./date/text()",
+        time: ~x"./time/text()",
+        pred: ~x"./pred/text()"f,
+        highlow: ~x"./highlow/text()"
+      )
+
+    IO.puts("Subject,Start Date,Start Time,End Date,End Time,Description,Location,Private")
     for item <- items do
-      IO.puts("#{inspect item, pretty: true}")
+      case item[:highlow] do
+        'L' ->
+          IO.puts("Low Tide: #{item[:pred]} feet,#{item[:date]},#{item[:time]},#{item[:date]},#{item[:time]},#{location[:stationname]} #{location[:state]} #{location[:stationid]},")
+        'H' ->
+          IO.puts("High Tide: #{item[:pred]} feet,#{item[:date]},#{item[:time]},#{item[:date]},#{item[:time]},#{location[:stationname]} #{location[:state]} #{location[:stationid]},")
+      end
     end
   end
 
