@@ -7,6 +7,9 @@ defmodule NOAATides.CLI do
 
   def main(argv), do: argv |> parse_argv |> process
 
+  def hl_to_string(hl) when hl == 'H', do: "high"
+  def hl_to_string(hl) when hl == 'L', do: "low"
+
   def process(%Optimus.ParseResult{args: _args, options: options, flags: flags} = cli_args) do
     # Setup logger according to debug and verbose
     case flags[:debug] do
@@ -36,7 +39,6 @@ defmodule NOAATides.CLI do
         state: ~x"./state/text()",
         stationid: ~x"./stationid/text()"
         ), 0)
-      IO.puts("#{inspect location, pretty: true}")
 
     items =
       doc
@@ -50,12 +52,8 @@ defmodule NOAATides.CLI do
 
     IO.puts("Subject,Start Date,Start Time,End Date,End Time,Description,Location,Private")
     for item <- items do
-      case item[:highlow] do
-        'L' ->
-          IO.puts("Low Tide: #{item[:pred]} feet,#{item[:date]},#{item[:time]},#{item[:date]},#{item[:time]},#{location[:stationname]} #{location[:state]} #{location[:stationid]},")
-        'H' ->
-          IO.puts("High Tide: #{item[:pred]} feet,#{item[:date]},#{item[:time]},#{item[:date]},#{item[:time]},#{location[:stationname]} #{location[:state]} #{location[:stationid]},")
-      end
+      hl = hl_to_string(item[:highlow]) |> String.capitalize
+      IO.puts("#{hl} Tide: #{item[:pred]} feet,#{item[:date]},#{item[:time]},#{item[:date]},#{item[:time]},#{location[:stationname]} #{location[:state]},\"#{hl} Tide: #{item[:pred]} feet from station #{location[:stationid]} in #{location[:stationname]} #{location[:state]}\"")
     end
   end
 
