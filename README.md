@@ -47,3 +47,4 @@ High Tide: 4.35 feet,2022/12/02,19:26,2022/12/02,19:26,San Francisco CA,"High Ti
 ## Todo
 
 * Support output file by name instead of stdout, less mess.
+* Parameter for station id
