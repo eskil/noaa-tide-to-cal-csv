@@ -48,3 +48,9 @@ High Tide: 4.35 feet,2022/12/02,19:26,2022/12/02,19:26,San Francisco CA,"High Ti
 
 * Support output file by name instead of stdout, less mess.
 * Parameter for station id
+
+## Resources
+
+This uses a [cgibin script hosted at NOAA](https://tidesandcurrents.noaa.gov/cgi-bin/predictiondownload.cgi?&stnid=9414290&threshold=&thresholdDirection=&bdate=20220101&edate=20220131&units=standard&timezone=LST/LDT&datum=MLLW&interval=hilo&clock=12hour&type=txt&annual=false).
+
+You can find station ids [here](https://tidesandcurrents.noaa.gov/tide_predictions.html)
