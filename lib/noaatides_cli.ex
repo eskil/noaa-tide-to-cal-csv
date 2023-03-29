@@ -7,8 +7,8 @@ defmodule NOAATides.CLI do
 
   def main(argv), do: argv |> parse_argv |> process
 
-  def hl_to_string(hl) when hl == 'H', do: "high"
-  def hl_to_string(hl) when hl == 'L', do: "low"
+  def hl_to_string('H'), do: "high"
+  def hl_to_string('L'), do: "low"
 
   def process(%Optimus.ParseResult{args: _args, options: options, flags: flags} = cli_args) do
     # Setup logger according to debug and verbose
@@ -27,8 +27,6 @@ defmodule NOAATides.CLI do
     :hackney_trace.enable(NOAATides.Utils.hackney_level(flags[:debug], flags[:verbosity]), :io)
 
     Logger.info("Configuration: #{inspect cli_args}")
-
-    for pid <- Process.list, do: Logger.debug("process: #{inspect {pid, Process.info(pid, :registered_name)}}")
 
     doc = NOOATides.Client.retrying_query(options[:from_date], options[:to_date])
 
@@ -52,9 +50,14 @@ defmodule NOAATides.CLI do
 
     IO.puts("Subject,Start Date,Start Time,End Date,End Time,Description,Location,Private")
     for item <- items do
-      hl = hl_to_string(item[:highlow]) |> String.capitalize
+      hl =
+        item[:highlow]
+        |> hl_to_string
+        |> String.capitalize
       pred = trunc(item[:pred] * 10) / 10
-      IO.puts("#{hl} Tide: #{pred} feet,#{item.date},#{item.time},#{item.date},#{item.time},#{location.stationname} #{location.state},\"#{hl} Tide: #{pred} feet from station #{location.stationid} in #{location.stationname} #{location.state}\"")
+      IO.puts("#{hl} Tide: #{pred} feet,"
+        <> "#{item.date},#{item.time},#{item.date},#{item.time},#{location.stationname} #{location.state},\"#{hl} "
+        <> "Tide: #{pred} feet from station #{location.stationid} in #{location.stationname} #{location.state}\"")
     end
   end
 
@@ -87,10 +90,10 @@ defmodule NOAATides.CLI do
           value_name: "FROM_DATE",
           short: "-f",
           long: "--from",
-          help: "Download tides from this date",
+          help: "Download tides from this date as YYYY-MM-DD",
           parser: fn(s) ->
             case Date.from_iso8601(s) do
-              {:error, _} -> {:error, "invalid 'from' date - format or non-existent date"}
+              {:error, _} -> {:error, "invalid 'from' date - format (YYYY-MM-DD) or non-existent date"}
               {:ok, _} = ok -> ok
             end
           end,
@@ -100,10 +103,10 @@ defmodule NOAATides.CLI do
           value_name: "TO_DATE",
           short: "-t",
           long: "--to",
-          help: "Download tides to this date",
+          help: "Download tides to this date as YYYY-MM-DD",
           parser: fn(s) ->
             case Date.from_iso8601(s) do
-              {:error, _} -> {:error, "invalid 'to' date - format or non-existent date"}
+              {:error, _} -> {:error, "invalid 'to' date - format (YYYY-MM-DD) or non-existent date"}
               {:ok, _} = ok -> ok
             end
           end,
