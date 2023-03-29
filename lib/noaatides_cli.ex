@@ -53,7 +53,8 @@ defmodule NOAATides.CLI do
     IO.puts("Subject,Start Date,Start Time,End Date,End Time,Description,Location,Private")
     for item <- items do
       hl = hl_to_string(item[:highlow]) |> String.capitalize
-      IO.puts("#{hl} Tide: #{item[:pred]} feet,#{item[:date]},#{item[:time]},#{item[:date]},#{item[:time]},#{location[:stationname]} #{location[:state]},\"#{hl} Tide: #{item[:pred]} feet from station #{location[:stationid]} in #{location[:stationname]} #{location[:state]}\"")
+      pred = trunc(item[:pred] * 10) / 10
+      IO.puts("#{hl} Tide: #{pred} feet,#{item.date},#{item.time},#{item.date},#{item.time},#{location.stationname} #{location.state},\"#{hl} Tide: #{pred} feet from station #{location.stationid} in #{location.stationname} #{location.state}\"")
     end
   end
 
@@ -89,7 +90,7 @@ defmodule NOAATides.CLI do
           help: "Download tides from this date",
           parser: fn(s) ->
             case Date.from_iso8601(s) do
-              {:error, _} -> {:error, "invalid 'from' date"}
+              {:error, _} -> {:error, "invalid 'from' date - format or non-existent date"}
               {:ok, _} = ok -> ok
             end
           end,
@@ -102,7 +103,7 @@ defmodule NOAATides.CLI do
           help: "Download tides to this date",
           parser: fn(s) ->
             case Date.from_iso8601(s) do
-              {:error, _} -> {:error, "invalid 'to' date"}
+              {:error, _} -> {:error, "invalid 'to' date - format or non-existent date"}
               {:ok, _} = ok -> ok
             end
           end,
