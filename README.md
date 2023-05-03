@@ -37,11 +37,21 @@ Low Tide: 1.33 feet,2022/12/02,13:32,2022/12/02,13:32,San Francisco CA,"Low Tide
 High Tide: 4.35 feet,2022/12/02,19:26,2022/12/02,19:26,San Francisco CA,"High Tide: 4.35 feet from station 9414290 in San Francisco CA"
 ```
 
+Making a new calendar with this
 * Pipe into a file
 * Goto google calendar
 * Using the "+" on "Other calendars"
 * Create a new calendar titled "SF Tides" or such
 * Now import the CSV into the new calendar
+* voila...
+
+If you already have a calendar and need to add more
+* Pipe into a a file
+* Goto google calendar
+* Using the "+" on "Other calendars"
+* Pick "import"
+* Select the file
+* Select the calendar to import into
 * voila...
 
 ## Todo
